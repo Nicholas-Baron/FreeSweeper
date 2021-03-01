@@ -123,6 +123,8 @@ public class Grid {
 			g.setColor(Color.GREEN);
 			g.drawString(win, rX, rY);
 			
+			g.dispose( );
+			bs.show( );
 			game.stop(false);
 		} else if (hitMine) {
 			g.setFont(new Font("Courier New", Font.BOLD, squareDrawSize));
@@ -137,9 +139,17 @@ public class Grid {
 
 			g.setColor(Color.RED);
 			g.drawString(lose, rX, rY);
-		}
-		
+			
 
+			g.dispose( );
+			bs.show( );
+			game.stop(true);
+		}
+
+		final String basePrint = MineSweeper.name+" (" + sizeX( ) + ", " + sizeY( ) + ") | Flags Used: " + flagsUsed( ) + " | Mines: " + numMines( ) + " | " + String.format("%.2f", percentComplete( )) + "% Complete | AI Engaged: " + MineSweeper.getAI().isAlive( );
+		
+		game.setTitle(basePrint);
+		
 		g.dispose( );
 		bs.show( );
 	}
@@ -386,12 +396,12 @@ public class Grid {
 				setHighLight(tileAt(tX, tY));
 			}
 		}
-		if (numKnown( ) == totalSquares( )) {
+		if (numKnown( ) == totalSquares( ) || numKnown() - flagsUsed() == totalSquares() - numMines()) {
 			completed = true;
 		}
 
 		if (hitMine) {
-			game.stop(true);
+//			game.stop(true);
 //			game.restart();
 		}
 

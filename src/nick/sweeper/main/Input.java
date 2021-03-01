@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import nick.sweeper.ai.AILogic;
 import radar.sweeper.draw.MousePath;
 
 public class Input implements MouseListener, MouseMotionListener, KeyListener {
@@ -48,7 +49,11 @@ public class Input implements MouseListener, MouseMotionListener, KeyListener {
 	public void keyPressed(final KeyEvent e) {
 
 		if (e.getKeyCode( ) == KeyEvent.VK_A) {
-			MineSweeper.toggleAI( );
+			if(!MineSweeper.getAI().isAlive()) {
+				MineSweeper.getAI().start();
+			}else {
+				AILogic.halt();
+			}
 		}
 	}
 
@@ -92,7 +97,6 @@ public class Input implements MouseListener, MouseMotionListener, KeyListener {
 		mX = e.getX( );
 		mY = e.getY( );
 		
-//		System.out.println(mX+" "+mY);
 		if(mousePath != null) {
 			mousePath.hoveredLocation(mX, mY);
 		}
@@ -105,7 +109,7 @@ public class Input implements MouseListener, MouseMotionListener, KeyListener {
 			g.onClick(e.getX( ), e.getY( ), false);
 			return;
 		}
-		if(e.getButton() == MouseEvent.BUTTON2) {
+		if(e.getButton() == MouseEvent.BUTTON3) {
 			g.onClick(e.getX( ), e.getY( ), true);
 		}
 	}

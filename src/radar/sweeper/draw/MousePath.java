@@ -13,6 +13,9 @@ public class MousePath {
 	private BufferedImage img;
 	
 	public void hoveredLocation(int x, int y) {
+		if(x < 0 || y < 0 || x >= img.getWidth() || y >= img.getHeight()) {
+			return;
+		}
 		img.setRGB(x, y, Color.WHITE.getRGB());
 	}
 	

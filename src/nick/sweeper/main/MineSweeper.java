@@ -14,8 +14,8 @@ public final class MineSweeper extends Canvas implements Runnable {
 
 	private static final long			serialVersionUID	= 1L;
 
-	public static final short			height				= 26, width = 50, numMines = 250;
-//	public static final short			height				= 15, width = 15, numMines = 20;
+//	public static final short			height				= 26, width = 50, numMines = 250;
+	public static final short			height				= 15, width = 15, numMines = 20;
 
 	private static JFrame				frame;
 
@@ -42,10 +42,10 @@ public final class MineSweeper extends Canvas implements Runnable {
 	private MousePath mousePath;
 
 	public static AILogic getAI( ) {
-
 		return ai;
 	}
 
+	//TODO Use args to override size of board
 	public static void main(final String[ ] args) {
 
 		MineSweeper game = new MineSweeper();
@@ -72,7 +72,7 @@ public final class MineSweeper extends Canvas implements Runnable {
 
 		frame.addWindowListener(new WindowAdapter(){  
             public void windowClosing(WindowEvent e) {
-            	game.stop(false);
+            	game.fastStop();
                 frame.dispose();
             }
         });
@@ -82,7 +82,6 @@ public final class MineSweeper extends Canvas implements Runnable {
 	}
 
 	public static void toggleAI( ) {
-
 		aiEngage = !AILogic.isRunning( );
 	}
 
@@ -111,52 +110,10 @@ public final class MineSweeper extends Canvas implements Runnable {
 
 		return getWidth( );
 	}
-
-//	@SuppressWarnings("unused")
-//	@Override
-//	public void run( ) {
-//
-//		System.out.printf("%.1f", grid.percentMines( ));
-//		System.out.println("% of the map is mined.");
-//
-//		final double delta = 1000.0 / 60, minFrameTime = 1000000000.0 / maxFPS;
-//
-//		short fps = 0, ups = 0;
-//		long lastUpdate = System.currentTimeMillis( ), lastPrint = System.currentTimeMillis( ),
-//				lastFrameTime = System.nanoTime( );
-//
-//		while (isRunning) {
-//
-//			if ((lastUpdate + delta) < System.currentTimeMillis( )) {
-//				// System.out.println("Update");
-//				update( );
-//				lastUpdate += delta;
-//				++ups;
-//			}
-//
-//			while ((lastFrameTime + minFrameTime) < System.nanoTime( )) {
-//				render( );
-//				lastFrameTime += minFrameTime;
-//				++fps;
-//			}
-//
-//			if ((lastPrint + 1000) < System.currentTimeMillis( )) {
-//
-//				final String basePrint = name + " (" + grid.sizeX( ) + ", " + grid.sizeY( ) + ") | Flags Used: " + grid.flagsUsed( ) + " | Mines: " + grid.numMines( ) + " | " + String.format("%.2f", grid.percentComplete( )) + "% Complete | AI Engaged: " + ai.isAlive( );
-//
-//				if (debug) {
-//					frame.setTitle(basePrint + " | UPS: " + ups + " | FPS: " + fps);
-//				} else {
-//					frame.setTitle(basePrint);
-//				}
-//
-//				fps = 0;
-//				ups = 0;
-//				lastPrint += 1000;
-//			}
-//
-//		}
-//	}
+	
+	public void setTitle(String title) {
+		frame.setTitle(title);
+	}
 	
 	@Override
 	public void run() {
@@ -166,6 +123,18 @@ public final class MineSweeper extends Canvas implements Runnable {
 		grid.addGraphics(bs);
 	}
 
+	public synchronized void fastStop() {
+		AILogic.halt();
+		mousePath.saveImg("output");
+		
+		try {
+			ai.join(1000);
+			thread.join();
+		} catch(Exception e) {
+			System.out.println("Error occured while closing");
+		}
+	}
+	
 	public synchronized void stop(final boolean lost) {
 
 		isRunning = false;
@@ -175,9 +144,12 @@ public final class MineSweeper extends Canvas implements Runnable {
 
 		if (lost) {
 			System.out.println("Hit a mine!");
+		}else {
+			System.out.println("Won game!");
 		}
 
 		try {
+			wait(2000);
 			if (debug) {
 				wait( );
 			}
@@ -201,18 +173,6 @@ public final class MineSweeper extends Canvas implements Runnable {
 		
 		thread = new Thread(game, "Main Thread");
 		thread.start();
-	}
-	
-	private void update( ) {
-
-		grid.setOffsets(getWidth( ) / 2, getHeight( ) / 2);
-		grid.update( );
-
-		if (aiEngage && !AILogic.isRunning( )) {
-			ai.start( );
-			aiEngage = false;
-		}
-
 	}
 
 
