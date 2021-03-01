@@ -6,6 +6,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import radar.sweeper.draw.MousePath;
+
 public class Input implements MouseListener, MouseMotionListener, KeyListener {
 
 	private static int		mX, mY;
@@ -27,13 +29,21 @@ public class Input implements MouseListener, MouseMotionListener, KeyListener {
 		return mY;
 	}
 
-	private final Grid g;
-
-	public Input(final Grid g) {
-
-		this.g = g;
+	private Grid g;
+	
+	private MousePath mousePath;
+	
+	public Input() {
 	}
 
+	public void setGrid(Grid g) {
+		this.g = g;
+	}
+	
+	public void setMousePath(MousePath mp) {
+		this.mousePath = mp;
+	}
+	
 	@Override
 	public void keyPressed(final KeyEvent e) {
 
@@ -55,7 +65,7 @@ public class Input implements MouseListener, MouseMotionListener, KeyListener {
 	@Override
 	public void mouseClicked(final MouseEvent e) {
 
-		g.onClick(e.getX( ), e.getY( ), e.getButton( ) != MouseEvent.BUTTON1);
+//		g.onClick(e.getX( ), e.getY( ), e.getButton( ) != MouseEvent.BUTTON1);
 
 	}
 
@@ -81,11 +91,23 @@ public class Input implements MouseListener, MouseMotionListener, KeyListener {
 
 		mX = e.getX( );
 		mY = e.getY( );
+		
+//		System.out.println(mX+" "+mY);
+		if(mousePath != null) {
+			mousePath.hoveredLocation(mX, mY);
+		}
 	}
 
 	@Override
-	public void mousePressed(final MouseEvent arg0) {
+	public void mousePressed(final MouseEvent e) {
 
+		if(e.getButton() == MouseEvent.BUTTON1) {
+			g.onClick(e.getX( ), e.getY( ), false);
+			return;
+		}
+		if(e.getButton() == MouseEvent.BUTTON2) {
+			g.onClick(e.getX( ), e.getY( ), true);
+		}
 	}
 
 	@Override

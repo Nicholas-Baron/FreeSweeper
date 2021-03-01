@@ -116,20 +116,40 @@ public final class Tile {
 			}
 
 		} else if (getType( ) == Tile.Type.EMPTY) {
-
-			g.setColor(Color.GRAY);
+			g.setColor(Color.LIGHT_GRAY);
 			g.fillRect(pX, pY, size, size);
 		} else if (getType( ) == Tile.Type.NUMBER) {
 
 			g.setColor(Color.LIGHT_GRAY);
 			g.fillRect(pX, pY, size, size);
 
-			g.setColor(Color.BLUE);
+			switch(numMineNeighbors) {
+			case 1:
+				g.setColor(Color.BLUE);
+				break;
+			case 2:
+				g.setColor(new Color(36, 142, 60));
+				break;
+			case 3:
+				g.setColor(new Color(211, 47, 47));
+				break;
+			case 4:
+				g.setColor(new Color(123, 31, 162));
+				break;
+			case 5:
+				g.setColor(Color.ORANGE);
+				break;
+			default:
+				g.setColor(Color.CYAN);
+			}
 			String txt = getDisplayNum( );
 			final int stringMidHigh = g.getFontMetrics( ).getHeight( ) / 2;
 			final int stringMidWide = g.getFontMetrics( ).stringWidth(txt) / 2;
 			final short squareMid = (short) (size / 2);
 			g.drawString(txt, (pX - stringMidWide) + squareMid, pY + stringMidHigh + squareMid);
+		}else if(getType() == Tile.Type.MINE) {
+			g.setColor(Color.RED);
+			g.fillRect(pX, pY, size, size);
 		}
 	}
 

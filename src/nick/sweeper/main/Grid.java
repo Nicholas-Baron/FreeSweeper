@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.image.BufferStrategy;
 
 import nick.sweeper.ai.AILogic;
 import nick.sweeper.main.Tile.Type;
@@ -20,7 +21,7 @@ public class Grid {
 	 */
 	public static final short	squareDrawSize	= 35;
 
-	public static final boolean	drawHighlight	= true;
+	public static final boolean	drawHighlight	= false;
 
 	private final int			sizeX, sizeY, numMines;
 
@@ -39,6 +40,8 @@ public class Grid {
 	private final MineSweeper	game;
 
 	private Tile				highlight;
+	
+	private BufferStrategy bs;
 
 	public Grid(final int xSize, final int ySize, final int mines, final MineSweeper gameObj) {
 
@@ -51,6 +54,7 @@ public class Grid {
 		numMines = mines;
 		game = gameObj;
 
+		
 		grid = new Tile[sizeX][sizeY];
 		initGrid( );
 	}
@@ -71,11 +75,26 @@ public class Grid {
 		}
 	}
 
-	public void draw(final Graphics g) {
-
+	public void addGraphics(BufferStrategy bs) {
+		this.bs = bs;
+		
+		// Needs to be called multiple times to fill the buffer
+		draw(bs);
+		draw(bs);
+		draw(bs);
+	}
+	
+	public void draw(BufferStrategy bs) {
+		Graphics g = bs.getDrawGraphics();
+		setOffsets(game.getWidth( ) / 2, game.getHeight( ) / 2);
+		update( );
+		
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, game.getWidth( ), game.getHeight( ));
+//
 		drawTileGrid(g);
 
-		if (highlight != null) {
+		if (highlight != null && drawHighlight) {
 			// Tile X and Y
 			final int tX = highlight.getX( ) - 1;
 			final int tY = highlight.getY( ) - 1;
@@ -103,6 +122,8 @@ public class Grid {
 
 			g.setColor(Color.GREEN);
 			g.drawString(win, rX, rY);
+			
+			game.stop(false);
 		} else if (hitMine) {
 			g.setFont(new Font("Courier New", Font.BOLD, squareDrawSize));
 			final String lose = "Hit a Mine!";
@@ -117,6 +138,10 @@ public class Grid {
 			g.setColor(Color.RED);
 			g.drawString(lose, rX, rY);
 		}
+		
+
+		g.dispose( );
+		bs.show( );
 	}
 
 	private final void drawTileGrid(final Graphics g) {
@@ -148,9 +173,13 @@ public class Grid {
 		int minesToPlace = numMines;
 		for (int x = 0; x < sizeX; x++) {
 			for (int y = 0; y < sizeY; y++) {
+				if(x < 2 && y < 2) {
+					grid[x][y] = new Tile(this, x, y, false);
+					continue;
+				}
 				final int spotsLeft = (totalSquares( ) - y) - (x * sizeY);
 
-				final double chanceOfMine = (double) (minesToPlace) / spotsLeft;
+				final double chanceOfMine = (double) (minesToPlace) / (spotsLeft - 4);
 				if (Math.random( ) <= chanceOfMine) {
 					grid[x][y] = new Tile(this, x, y, true);
 					minesToPlace--;
@@ -229,7 +258,6 @@ public class Grid {
 		if (s != null) {
 			onClick(s, flag);
 		}
-
 	}
 
 	public void onClick(final Tile s, final boolean flag) {
@@ -264,6 +292,8 @@ public class Grid {
 		}
 
 		clearEmptyNeighbors(s);
+
+		draw(bs);
 	}
 
 	public float percentComplete( ) {
@@ -280,7 +310,6 @@ public class Grid {
 	}
 
 	public Dimension renderSize( ) {
-
 		return new Dimension(sizeX * squareDrawSize, sizeY * squareDrawSize);
 	}
 
@@ -363,6 +392,7 @@ public class Grid {
 
 		if (hitMine) {
 			game.stop(true);
+//			game.restart();
 		}
 
 	}
