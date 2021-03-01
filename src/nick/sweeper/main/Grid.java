@@ -21,7 +21,7 @@ public class Grid {
 	 */
 	public static final short	squareDrawSize	= 35;
 
-	public static final boolean	drawHighlight	= false;
+	public static final boolean	drawHighlight	= true;
 
 	private final int			sizeX, sizeY, numMines;
 
@@ -79,19 +79,19 @@ public class Grid {
 		this.bs = bs;
 		
 		// Needs to be called multiple times to fill the buffer
-		draw(bs);
-		draw(bs);
-		draw(bs);
+		draw();
+		draw();
+		draw();
 	}
 	
-	public void draw(BufferStrategy bs) {
+	public void draw() {
 		Graphics g = bs.getDrawGraphics();
 		setOffsets(game.getWidth( ) / 2, game.getHeight( ) / 2);
 		update( );
 		
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, game.getWidth( ), game.getHeight( ));
-//
+
 		drawTileGrid(g);
 
 		if (highlight != null && drawHighlight) {
@@ -303,7 +303,7 @@ public class Grid {
 
 		clearEmptyNeighbors(s);
 
-		draw(bs);
+		draw();
 	}
 
 	public float percentComplete( ) {

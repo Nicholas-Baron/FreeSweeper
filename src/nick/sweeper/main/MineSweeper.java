@@ -15,13 +15,11 @@ public final class MineSweeper extends Canvas implements Runnable {
 	private static final long			serialVersionUID	= 1L;
 
 //	public static final short			height				= 26, width = 50, numMines = 250;
-	public static final short			height				= 15, width = 15, numMines = 20;
+	public static short					height				= 15, width = 15, numMines = 20;
 
 	private static JFrame				frame;
 
 	private static Grid					grid;
-
-	private static boolean				isRunning			= true;
 
 	private static final Input			input				= new Input();
 	
@@ -36,8 +34,6 @@ public final class MineSweeper extends Canvas implements Runnable {
 	public static final boolean			debug				= false;
 
 	private static AILogic				ai;
-
-	private static boolean				aiEngage			= false;
 	
 	private MousePath mousePath;
 
@@ -45,10 +41,33 @@ public final class MineSweeper extends Canvas implements Runnable {
 		return ai;
 	}
 
-	//TODO Use args to override size of board
+	
+	/**
+	 * @param args Valid arguments are <width> <height> <numMines> <outputFilename>
+	 */
 	public static void main(final String[ ] args) {
 
-		MineSweeper game = new MineSweeper();
+		MineSweeper game;
+		
+		if(args.length > 0) {
+			if(args.length < 3) {
+				System.out.println("Please specify the width and height of the board in the number of spaces and the number of mines to place");
+			}
+			
+			width = (short) Integer.parseInt(args[0]);
+			height = (short) Integer.parseInt(args[1]);
+			numMines = (short) Integer.parseInt(args[2]);
+			
+			if(args.length > 3) {
+				game = new MineSweeper(args[3]);
+			}else {
+				game = new MineSweeper();
+			}
+		}else {
+			game = new MineSweeper();
+		}
+
+
 		Thread thread = new Thread(game, "Main Thread");
 		
 		game.addThread(thread);
@@ -81,24 +100,25 @@ public final class MineSweeper extends Canvas implements Runnable {
 		thread.start( );
 	}
 
-	public static void toggleAI( ) {
-		aiEngage = !AILogic.isRunning( );
-	}
-
 	public void addThread(Thread thread) {
 		this.thread = thread;
 	}
 	
-	public MineSweeper( ) {
+	public MineSweeper() {
 		grid = new Grid(width, height, numMines, this);
 		setPreferredSize(grid.renderSize( ));
 		
-		mousePath = new MousePath(grid);
-
 		input.setGrid(grid);
-		input.setMousePath(mousePath);
 		
 		ai = new AILogic(grid);
+	}
+	
+	public MineSweeper(String outputFile) {
+		this();
+
+		mousePath = new MousePath(grid, outputFile);
+
+		input.setMousePath(mousePath);
 	}
 
 	public int renderHeight( ) {
@@ -125,7 +145,10 @@ public final class MineSweeper extends Canvas implements Runnable {
 
 	public synchronized void fastStop() {
 		AILogic.halt();
-		mousePath.saveImg("output");
+		
+		if(mousePath != null) {
+			mousePath.saveImg();
+		}
 		
 		try {
 			ai.join(1000);
@@ -137,10 +160,11 @@ public final class MineSweeper extends Canvas implements Runnable {
 	
 	public synchronized void stop(final boolean lost) {
 
-		isRunning = false;
 		AILogic.halt( );
 		
-		mousePath.saveImg("output");
+		if(mousePath != null) {
+			mousePath.saveImg();
+		}
 
 		if (lost) {
 			System.out.println("Hit a mine!");
@@ -174,6 +198,4 @@ public final class MineSweeper extends Canvas implements Runnable {
 		thread = new Thread(game, "Main Thread");
 		thread.start();
 	}
-
-
 }

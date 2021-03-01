@@ -100,6 +100,10 @@ public class Input implements MouseListener, MouseMotionListener, KeyListener {
 		if(mousePath != null) {
 			mousePath.hoveredLocation(mX, mY);
 		}
+		
+		if(Grid.drawHighlight) {
+			g.draw();
+		}
 	}
 
 	@Override
