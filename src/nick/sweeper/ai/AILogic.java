@@ -100,7 +100,6 @@ public class AILogic extends Thread {
 	}
 
 	private void process( ) {
-		System.out.println("AI Processing");
 
 		if (grid.percentComplete( ) >= 100) {
 			System.out.println("Total Runtime: " + totalRuntime + "ms (" + (totalRuntime / 1000) + "s)");

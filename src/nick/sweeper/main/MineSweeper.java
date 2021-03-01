@@ -185,17 +185,22 @@ public final class MineSweeper extends Canvas implements Runnable {
 		}
 	}
 
-	public void restart() {
-//		frame.remove(game);
+	public synchronized void restart() {
+		if(mousePath != null) {
+			mousePath.saveImg();
+		}
 		
-		game = new MineSweeper();
+		try {
+			wait(2000);
+		} catch(Exception e) {
+			System.out.println("Unable to wait to restart");
+		}
+		grid = new Grid(width, height, numMines, this);
 		
-//		frame.add(game);
-		frame.pack( );
-
-		frame.setVisible(true);
+		input.setGrid(grid);
 		
-		thread = new Thread(game, "Main Thread");
-		thread.start();
+		ai = new AILogic(grid);
+		
+		grid.addGraphics(bs);
 	}
 }

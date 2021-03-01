@@ -79,6 +79,7 @@ public class Grid {
 		this.bs = bs;
 		
 		// Needs to be called multiple times to fill the buffer
+		// Not quite perfect and doesn't work all the time
 		draw();
 		draw();
 		draw();
@@ -125,7 +126,8 @@ public class Grid {
 			
 			g.dispose( );
 			bs.show( );
-			game.stop(false);
+//			game.stop(false);
+			game.restart();
 		} else if (hitMine) {
 			g.setFont(new Font("Courier New", Font.BOLD, squareDrawSize));
 			final String lose = "Hit a Mine!";
@@ -143,7 +145,8 @@ public class Grid {
 
 			g.dispose( );
 			bs.show( );
-			game.stop(true);
+//			game.stop(true);
+			game.restart();
 		}
 
 		final String basePrint = MineSweeper.name+" (" + sizeX( ) + ", " + sizeY( ) + ") | Flags Used: " + flagsUsed( ) + " | Mines: " + numMines( ) + " | " + String.format("%.2f", percentComplete( )) + "% Complete | AI Engaged: " + MineSweeper.getAI().isAlive( );
@@ -399,12 +402,6 @@ public class Grid {
 		if (numKnown( ) == totalSquares( ) || numKnown() - flagsUsed() == totalSquares() - numMines()) {
 			completed = true;
 		}
-
-		if (hitMine) {
-//			game.stop(true);
-//			game.restart();
-		}
-
 	}
 
 }
